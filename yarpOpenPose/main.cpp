@@ -291,6 +291,30 @@ public:
         {18, "Background"}
     };
 
+    std::map<unsigned int, std::string> handParts {
+        {0,  "Wrist"},
+        {1,  "Abductor"},
+        {2,  "BThumb"},
+        {3,  "PThumb"},
+        {4,  "DThumb"},
+        {5,  "BIndex"},
+        {6,  "PIndex"},
+        {7,  "IIndex"},
+        {8,  "DIndex"},
+        {9,  "BMiddle"},
+        {10, "PMiddle"},
+        {11, "IMiddle"},
+        {12, "DMiddle"},
+        {13, "BRing"},
+        {14, "PRing"},
+        {15, "IRing"},
+        {16, "DRing"},
+        {17, "BPinky"},
+        {18, "PPinky"},
+        {19, "IPinky"},
+        {20, "DPinky"}
+    };
+
     /********************************************************/
     ImageProcessing(const std::string& moduleName)
     {
@@ -326,15 +350,27 @@ public:
             auto& tDatumsNoPtr = *datumsPtr;
             //Record people pose data
             op::Array<float> pose(tDatumsNoPtr.size());
+            op::Array<float> leftHand(tDatumsNoPtr.size());
+            op::Array<float> rightHand(tDatumsNoPtr.size());
             for (auto i = 0; i < tDatumsNoPtr.size(); i++)
             {
                 pose = tDatumsNoPtr[i]->poseKeypoints;
+                leftHand = tDatumsNoPtr[i]->handKeypoints[0];
+                rightHand = tDatumsNoPtr[i]->handKeypoints[1];
 
                 if (!pose.empty() && pose.getNumberDimensions() != 3)
                     op::error("pose.getNumberDimensions() != 3.", __LINE__, __FUNCTION__, __FILE__);
 
+                if (!leftHand.empty() && leftHand.getNumberDimensions() != 3)
+                    op::error("leftHand.getNumberDimensions() != 3.", __LINE__, __FUNCTION__, __FILE__);
+
+                if (!rightHand.empty() && rightHand.getNumberDimensions() != 3)
+                    op::error("rightHand.getNumberDimensions() != 3.", __LINE__, __FUNCTION__, __FILE__);
+
                 const auto numberPeople = pose.getSize(0);
                 const auto numberBodyParts = pose.getSize(1);
+                const auto numberLeftHandParts = leftHand.getSize(1);
+                const auto numberRightHandParts = rightHand.getSize(1);
 
                 //std::cout << "Number of people is " << numberPeople << std::endl;
                 //std::cout << "Number of body parts is " << numberBodyParts << std::endl;
@@ -347,7 +383,7 @@ public:
                         yarp::os::Bottle &partList = peopleList.addList();
                         const auto finalIndex = 3*(person*numberBodyParts + bodyPart);
                         
-                        if (bodyPart < 19 )
+                        if (bodyPart < 19)
                             partList.addString(mapPartsCoco[bodyPart].c_str());
                         else
                             partList.addString(mapParts[bodyPart].c_str());
@@ -355,6 +391,24 @@ public:
                         partList.addDouble(pose[finalIndex]);
                         partList.addDouble(pose[finalIndex+1]);
                         partList.addDouble(pose[finalIndex+2]);
+                    }
+                    for (auto leftHandPart = 0 ; leftHandPart < numberLeftHandParts ; leftHandPart++)
+                    {
+                        yarp::os::Bottle &partList = peopleList.addList();
+                        const auto finalIndex = 3*(person*numberLeftHandParts + leftHandPart);
+                        partList.addString(handParts[leftHandPart].c_str());
+                        partList.addDouble(leftHand[finalIndex]);
+                        partList.addDouble(leftHand[finalIndex+1]);
+                        partList.addDouble(leftHand[finalIndex+2]);
+                    }
+                    for (auto rightHandPart = 0 ; rightHandPart < numberRightHandParts ; rightHandPart++)
+                    {
+                        yarp::os::Bottle &partList = peopleList.addList();
+                        const auto finalIndex = 3*(person*numberRightHandParts + rightHandPart);
+                        partList.addString(handParts[rightHandPart].c_str());
+                        partList.addDouble(rightHand[finalIndex]);
+                        partList.addDouble(rightHand[finalIndex+1]);
+                        partList.addDouble(rightHand[finalIndex+2]);
                     }
                 }
             }
