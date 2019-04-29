@@ -377,10 +377,11 @@ public:
 
                 for (auto person = 0 ; person < numberPeople ; person++)
                 {
-                    yarp::os::Bottle &peopleList = mainList.addList();
+                    yarp::os::Bottle &personList = mainList.addList();
+                    yarp::os::Bottle &bodyList = personList.addList();
                     for (auto bodyPart = 0 ; bodyPart < numberBodyParts ; bodyPart++)
                     {
-                        yarp::os::Bottle &partList = peopleList.addList();
+                        yarp::os::Bottle &partList = bodyList.addList();
                         const auto finalIndex = 3*(person*numberBodyParts + bodyPart);
                         
                         if (bodyPart < 19)
@@ -392,18 +393,20 @@ public:
                         partList.addDouble(pose[finalIndex+1]);
                         partList.addDouble(pose[finalIndex+2]);
                     }
+                    yarp::os::Bottle &leftHandList = personList.addList();
                     for (auto leftHandPart = 0 ; leftHandPart < numberLeftHandParts ; leftHandPart++)
                     {
-                        yarp::os::Bottle &partList = peopleList.addList();
+                        yarp::os::Bottle &partList = leftHandList.addList();
                         const auto finalIndex = 3*(person*numberLeftHandParts + leftHandPart);
                         partList.addString(handParts[leftHandPart].c_str());
                         partList.addDouble(leftHand[finalIndex]);
                         partList.addDouble(leftHand[finalIndex+1]);
                         partList.addDouble(leftHand[finalIndex+2]);
                     }
+                    yarp::os::Bottle &rightHandList = personList.addList();
                     for (auto rightHandPart = 0 ; rightHandPart < numberRightHandParts ; rightHandPart++)
                     {
-                        yarp::os::Bottle &partList = peopleList.addList();
+                        yarp::os::Bottle &partList = rightHandList.addList();
                         const auto finalIndex = 3*(person*numberRightHandParts + rightHandPart);
                         partList.addString(handParts[rightHandPart].c_str());
                         partList.addDouble(rightHand[finalIndex]);
